@@ -27,7 +27,7 @@ $VERSION="0.1";
         authors => 'Minoru',
         contact => 'eual.jp@gmail.com',
         license => 'GPLv3',
-        description => 'Print info about your system',
+        description => 'Prints info about your system',
         );
 
 sub sysinfo {
