@@ -21,7 +21,7 @@ use Irssi;
 
 use vars qw{$VERSION %IRSSI};
 
-$VERSION="0.1";
+$VERSION="0.2";
 %IRSSI = (
         name => 'SysInfo',
         authors => 'Minoru',
