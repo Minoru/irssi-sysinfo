@@ -14,6 +14,7 @@
 #       - load averages
 #       - graphs for RAM and swap usage (something like colored [||||||||||]). It may be called $RAMGraph and $SwapGraph
 #       - possibility to change Kb to Mb or Gb in memory info; MHz to GHz in CPU info
+#       - load averages (/proc/loadavg)
 
 use strict;
 use Irssi;
