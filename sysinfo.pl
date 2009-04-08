@@ -16,12 +16,17 @@
 #       - possibility to change Kb to Mb or Gb in memory info; MHz to GHz in CPU info
 #       - load averages (/proc/loadavg)
 
+# CHANGELOG
+# 0.3   
+#       - frequency showing in GHz instead of MHz if it's more than 1000 MHz
+#       - RAM and swap sizes in KB, MB or GB depending on its value (MB if equal or more than 1 MB, GB if eq or more than 1 GB)
+
 use strict;
 use Irssi;
 
 use vars qw{$VERSION %IRSSI};
 
-$VERSION="0.2";
+$VERSION="0.3";
 %IRSSI = (
         name => 'SysInfo',
         authors => 'Minoru',
@@ -147,6 +152,22 @@ sub getCPUInfo {
     return ($model,$freq,$bogomips);
 }
 
+sub kbToOther {
+    # Convert KB to MB and GB
+    my $size = $_[0];
+    my $numeric = "KB";
+    $size =~ s/\s+.*/ /g;
+    if ($size >= 1048576) { # if size is more than GB
+        $size = $size / 1048576;
+        $numeric = "GB";
+    } elsif ($size >= 1024) { # if size is more than MB
+        $size = $size / 1024;
+        $numeric = "MB";
+    }
+    $size = sprintf("%.0f", $size);
+    return $size . " " . $numeric;
+}
+
 sub getMemInfo {
     # Return info about RAM and swap
     my ($crap,$line,$RAMTotal,$RAMFree,$RAMCached,$SwapTotal,$SwapFree,$SwapCached);
@@ -156,21 +177,27 @@ sub getMemInfo {
         $line =~ s/\s+/ /g;
         if ($line =~ /^MemTotal/) {
             ($crap,$RAMTotal) = split ": ", $line;
+            $RAMTotal = &kbToOther($RAMTotal);
         }
         elsif ($line =~ /^MemFree/) {
             ($crap,$RAMFree) = split ": ", $line;
+            $RAMFree = &kbToOther($RAMFree);
         }
         elsif ($line =~ /^Cached/) {
             ($crap,$RAMCached) = split ": ", $line;
+            $RAMCached = &kbToOther($RAMCached);
         }
         elsif ($line =~ /^SwapTotal/) {
             ($crap,$SwapTotal) = split ": ", $line;
+            $SwapTotal = &kbToOther($SwapTotal);
         }
         elsif ($line =~ /^SwapFree/) {
             ($crap,$SwapFree) = split ": ", $line;
+            $SwapFree = &kbToOther($SwapFree);
         }
         elsif ($line =~ /^SwapCached/) {
             ($crap,$SwapCached) = split ": ", $line;
+            $SwapCached = &kbToOther($SwapCached);
         }
     }
     close(MEM) || die "Can't close /proc/meminfo: $!";
