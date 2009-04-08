@@ -12,7 +12,6 @@
 #       - disks usage
 #       - network stats
 #       - graphs for RAM and swap usage (something like colored [||||||||||]). It may be called $RAMGraph and $SwapGraph
-#       - load averages (/proc/loadavg)
 
 # CHANGELOG
 # 0.3   
