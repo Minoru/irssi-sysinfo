@@ -18,13 +18,16 @@
 # 0.3   
 #       - frequency showing in GHz instead of MHz if it's more than 1000 MHz
 #       - RAM and swap sizes in KB, MB or GB depending on its value (MB if equal or more than 1 MB, GB if eq or more than 1 GB)
+# 0.3.1
+#       - load averages info added
+#         You also can use $processesRunning and $processesTotal variables
 
 use strict;
 use Irssi;
 
 use vars qw{$VERSION %IRSSI};
 
-$VERSION="0.3";
+$VERSION="0.3.1";
 %IRSSI = (
         name => 'SysInfo',
         authors => 'Minoru',
@@ -44,6 +47,7 @@ sub sysinfo {
         my ($CPUModel,$CPUFreq,$bogomips) = &getCPUInfo;
         my ($RAMTotal,$RAMFree,$RAMCached,$SwapTotal,$SwapFree,$SwapCached) = &getMemInfo;
         my ($audioDev,$videoDev) = &getPCIDevsInfo;
+        my ($loadAvg1,$loadAvg5,$loadAvg10,$processesRunnning,$processesTotal) = &getLoadAvg;
     
         # Set format of message. You may use any variables initialized above and codes listed below
         # \002 mean bold (Usage: \002Here is bold text\002)
@@ -67,7 +71,7 @@ sub sysinfo {
         # 14  grey
         # 15  lightgrey
         # NOTE: Irssi can not display all this colors because it run in terminal which have limited number of colors (8, if I remember correctly), but other users (which use X clients, not irssi or wechat :) will see it properly
-        my $format = "[\002Kernel:\002 $kernelVersion] [\002Uptime:\002 $uptime] [\002CPU:\002 $CPUModel $CPUFreq] [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached cached)] [\002Swap:\002 $SwapFree/$SwapTotal free ($SwapCached cached)] [\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
+        my $format = "[\002Kernel:\002 $kernelVersion] [\002Uptime:\002 $uptime] [\002CPU:\002 $CPUModel $CPUFreq] [\002Load average:\002 $loadAvg1 $loadAvg5 $loadAvg10] [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached cached)] [\002Swap:\002 $SwapFree/$SwapTotal free ($SwapCached cached)] [\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
         # Print message to current channel or query (if it exist)
         $witem->command("MSG " . $witem->{name} . " $format");
     }
@@ -216,6 +220,15 @@ sub getPCIDevsInfo {
     }
     close(LSPCI) || die "Can't close reading lspci output: $!";
     return ($audioDev,$videoDev);
+}
+
+sub getLoadAvg {
+    my ($crap,$loadAvg1,$loadAvg5,$loadAvg10,$processesRunning,$processesTotal,$processesInfo);
+    open(LOADAVG,"/proc/loadavg") || die "Can't open /proc/loadavg: $!";
+    ($loadAvg1,$loadAvg5,$loadAvg10,$processesInfo,$crap) = split " ", <LOADAVG>;
+    close(LOADAVG) || die "Can't close /proc/loadavg: $!";
+    ($processesRunning,$processesTotal) = split "/", $processesInfo;
+    return ($loadAvg1,$loadAvg5,$loadAvg10,$processesRunning,$processesTotal);
 }
 
 Irssi::command_bind sysinfo => \&sysinfo;
