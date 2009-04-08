@@ -64,7 +64,7 @@ sub sysinfo {
         # 14  grey
         # 15  lightgrey
         # NOTE: Irssi can not display all this colors because it run in terminal which have limited number of colors (8, if I remember correctly), but other users (which use X clients, not irssi or wechat :) will see it properly
-        my $format = "[\002Kernel:\002 $kernelVersion] [\002Uptime:\002 $uptime] [\002CPU:\002 $CPUModel $CPUFreq MHz] [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached cached)] [\002Swap:\002 $SwapFree/$SwapTotal free ($SwapCached cached)] [\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
+        my $format = "[\002Kernel:\002 $kernelVersion] [\002Uptime:\002 $uptime] [\002CPU:\002 $CPUModel $CPUFreq] [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached cached)] [\002Swap:\002 $SwapFree/$SwapTotal free ($SwapCached cached)] [\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
         # Print message to current channel or query (if it exist)
         $witem->command("MSG " . $witem->{name} . " $format");
     }
@@ -134,6 +134,16 @@ sub getCPUInfo {
         }
     }
     close(PROC) || die "Can't close /proc/cpuinfo";
+    # Convert MHz to GHz is freq is more than 1000
+    my ($freq_num,$numeric) = split " ", $freq;
+    if ($freq_num > 1000) {
+        $freq = $freq_num / 1000;
+        # Keep 1 digit after decimal point
+        $freq = sprintf("%.1f", $freq);
+        $freq .= " GHz";
+    } else {
+        $freq .= " MHz";
+    };
     return ($model,$freq,$bogomips);
 }
 
