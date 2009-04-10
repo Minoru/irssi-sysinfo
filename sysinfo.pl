@@ -165,6 +165,8 @@ sub kbToOther {
         $size = $size / 1024;
         $numeric = "MB";
     }
+    # It may be writen as "use POSIX; ... $size = POSIX::floor($size);" too, but...
+    # ... but I didn't use POSIX anywhere here so why should I use it here? :)
     $size = sprintf("%.0f", $size);
     return $size . " " . $numeric;
 }
