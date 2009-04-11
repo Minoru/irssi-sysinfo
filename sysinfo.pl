@@ -12,6 +12,9 @@
 #       - graphs for RAM and swap usage (something like colored [||||||||||]). It may be called $RAMGraph and $SwapGraph
 #       - cache: as far as you can't change kernel or so on the fly, asking for its version is needless, so we can ask once and memorize answer for this session
 
+# KNOWN BUGS:
+#       - if message is too long, irssi wrap it (R6Ale)
+
 # CHANGELOG
 # 0.3.4
 #       - /sysinfo help added
