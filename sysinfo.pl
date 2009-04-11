@@ -9,7 +9,6 @@
 
 
 # TODO: Add:
-#       - network stats
 #       - graphs for RAM and swap usage (something like colored [||||||||||]). It may be called $RAMGraph and $SwapGraph
 #       - cache: as far as you can't change kernel or so on the fly, asking for its version is needless, so we can ask once and memorize answer for this session
 
@@ -22,13 +21,15 @@
 #         You also can use $processesRunning and $processesTotal variables
 # 0.3.2
 #       - disks usage info avaliable now
+# 0.3.3
+#       - network stats added
 
 use strict;
 use Irssi;
 
-use vars qw{$VERSION %IRSSI};
+use vars qw{$VERSION %IRSSI %SYSINFO};
 
-$VERSION="0.3.2";
+$VERSION="0.3.3";
 %IRSSI = (
         name => 'SysInfo',
         authors => 'Minoru',
@@ -50,6 +51,7 @@ sub sysinfo {
         my ($audioDev,$videoDev) = &getPCIDevsInfo;
         my ($loadAvg1,$loadAvg5,$loadAvg10,$processesRunnning,$processesTotal) = &getLoadAvg;
         my ($disksTotal,$disksUsed,$disksFree) = &getDisksInfo;
+        my ($netReceived, $netTransmitted) = &getNetInfo;
     
         # Set format of message. You may use any variables initialized above and codes listed below
         # \002 mean bold (Usage: \002Here is bold text\002)
@@ -73,7 +75,7 @@ sub sysinfo {
         # 14  grey
         # 15  lightgrey
         # NOTE: Irssi can not display all this colors because it run in terminal which have limited number of colors (8, if I remember correctly), but other users (which use X clients, not irssi or wechat :) will see it properly
-        my $format = "[\002Kernel:\002 $kernelVersion] [\002Uptime:\002 $uptime] [\002CPU:\002 $CPUModel $CPUFreq] [\002Load average:\002 $loadAvg1 $loadAvg5 $loadAvg10] [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached cached)] [\002Swap:\002 $swapFree/$swapTotal free ($swapCached cached)] [\002Disks:\002 $disksFree/$disksTotal free]  [\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
+        my $format = "[\002Kernel:\002 $kernelVersion] [\002Uptime:\002 $uptime] [\002CPU:\002 $CPUModel $CPUFreq] [\002Load average:\002 $loadAvg1 $loadAvg5 $loadAvg10] [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached cached)] [\002Swap:\002 $swapFree/$swapTotal free ($swapCached cached)] [\002Disks:\002 $disksFree/$disksTotal free] [\002Network:\002 $netReceived received, $netTransmitted transmitted] [\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
         # Print message to current channel or query (if it exist)
         $witem->command("MSG " . $witem->{name} . " $format");
     }
@@ -260,6 +262,34 @@ sub getDisksInfo {
     $disksUsed = &kbToOther($disksUsed);
     return ($disksTotal, $disksUsed, $disksFree);
 }
+
+sub getNetInfo {
+    my ($received, $transmitted, $crap, $line);
+    open(NETDEV,"/proc/net/dev") or die "Can't open /proc/net/dev: $!";
+    # Skip first two lines, which contain names of rows
+    $crap = <NETDEV>;
+    $crap = <NETDEV>;
+    while(defined($line = <NETDEV>)) {
+        chomp $line;
+        if ($line =~ "$SYSINFO{'network_interface'}") {
+            # Remove first space symbols
+            $line =~ s/^\s*//g;
+            # Remove name of interface
+            $line =~ s/.*://g;
+            $line =~ s/\s+/ /g;
+            # We need to remove first space symbols again because line may look like "eth1:   3545"
+            $line =~ s/^\s*//g;
+            # Read data
+            ($received,$crap,$crap,$crap,$crap,$crap,$crap,$crap,$transmitted,$crap,$crap,$crap,$crap,$crap,$crap,$crap) = split " ", $line;
+        }
+    }
+    close(NETDEV) or die "Can't close /proc/net/dev: $!";
+    $received = kbToOther(sprintf("%.0f", $received/1024));
+    $transmitted = kbToOther(sprintf("%.0f", $transmitted/1024));
+    return ($received, $transmitted);
+}
+
+Irssi::settings_add_str('sysinfo', 'network_interface', 'ppp0');
 
 Irssi::command_bind sysinfo => \&sysinfo;
 
