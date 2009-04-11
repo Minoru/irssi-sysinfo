@@ -29,7 +29,7 @@ use Irssi;
 
 use vars qw{$VERSION %IRSSI %SYSINFO};
 
-$VERSION="0.3.3";
+$VERSION="0.3.4";
 %IRSSI = (
         name => 'SysInfo',
         authors => 'Minoru',
@@ -38,46 +38,59 @@ $VERSION="0.3.3";
         description => 'Prints info about your system',
         );
 
+my $help = <<EOF;
+
+Usage:
+/sysinfo [help]
+
+/sysinfo         Prints information about your system to current channel or query.
+/sysinfo help    Prints this text
+EOF
+
 sub sysinfo {
     my ($data,$server,$witem) = @_;
 
     # If window exist and it's channel or query (no sense to print info to any other window)
-    if ($witem && ($witem->{type} eq "CHANNEL" || $witem->{type} eq "QUERY")) {
-        # Initialize varibles where real values of kernel version, architecture, machine uptime etc. stored
-        my $kernelVersion = &getKernelVersion;
-        my $uptime = &getUptime;
-        my ($CPUModel,$CPUFreq,$bogomips) = &getCPUInfo;
-        my ($RAMTotal,$RAMFree,$RAMCached,$swapTotal,$swapFree,$swapCached) = &getMemInfo;
-        my ($audioDev,$videoDev) = &getPCIDevsInfo;
-        my ($loadAvg1,$loadAvg5,$loadAvg10,$processesRunnning,$processesTotal) = &getLoadAvg;
-        my ($disksTotal,$disksUsed,$disksFree) = &getDisksInfo;
-        my ($netReceived, $netTransmitted) = &getNetInfo;
-    
-        # Set format of message. You may use any variables initialized above and codes listed below
-        # \002 mean bold (Usage: \002Here is bold text\002)
-        # \037 mean underlined text (Usage: \037Here is underlined text\037)
-        # \003fg[,bg] — set foreground and background colors (Usage: \0033Here is green text\003  or \0038,1Here is yellow text at black background\003)
-        # Table of mIRC colors (it's standard de-facto in IRC world):
-        #  0  white
-        #  1  black
-        #  2  blue
-        #  3  green
-        #  4  lightred
-        #  5  brown
-        #  6  purple
-        #  7  orange
-        #  8  yellow
-        #  9  lightgreen
-        # 10  cyan
-        # 11  lightcyan
-        # 12  lightblue
-        # 13  pink
-        # 14  grey
-        # 15  lightgrey
-        # NOTE: Irssi can not display all this colors because it run in terminal which have limited number of colors (8, if I remember correctly), but other users (which use X clients, not irssi or wechat :) will see it properly
-        my $format = "[\002Kernel:\002 $kernelVersion] [\002Uptime:\002 $uptime] [\002CPU:\002 $CPUModel $CPUFreq] [\002Load average:\002 $loadAvg1 $loadAvg5 $loadAvg10] [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached cached)] [\002Swap:\002 $swapFree/$swapTotal free ($swapCached cached)] [\002Disks:\002 $disksFree/$disksTotal free] [\002Network:\002 $netReceived received, $netTransmitted transmitted] [\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
-        # Print message to current channel or query (if it exist)
-        $witem->command("MSG " . $witem->{name} . " $format");
+    if ($data eq "help") {
+        print $help;
+    } else {
+        if ($witem && ($witem->{type} eq "CHANNEL" || $witem->{type} eq "QUERY")) {
+            # Initialize varibles where real values of kernel version, architecture, machine uptime etc. stored
+            my $kernelVersion = &getKernelVersion;
+            my $uptime = &getUptime;
+            my ($CPUModel,$CPUFreq,$bogomips) = &getCPUInfo;
+            my ($RAMTotal,$RAMFree,$RAMCached,$swapTotal,$swapFree,$swapCached) = &getMemInfo;
+            my ($audioDev,$videoDev) = &getPCIDevsInfo;
+            my ($loadAvg1,$loadAvg5,$loadAvg10,$processesRunnning,$processesTotal) = &getLoadAvg;
+            my ($disksTotal,$disksUsed,$disksFree) = &getDisksInfo;
+            my ($netReceived, $netTransmitted) = &getNetInfo;
+        
+            # Set format of message. You may use any variables initialized above and codes listed below
+            # \002 mean bold (Usage: \002Here is bold text\002)
+            # \037 mean underlined text (Usage: \037Here is underlined text\037)
+            # \003fg[,bg] — set foreground and background colors (Usage: \0033Here is green text\003  or \0038,1Here is yellow text at black background\003)
+            # Table of mIRC colors (it's standard de-facto in IRC world):
+            #  0  white
+            #  1  black
+            #  2  blue
+            #  3  green
+            #  4  lightred
+            #  5  brown
+            #  6  purple
+            #  7  orange
+            #  8  yellow
+            #  9  lightgreen
+            # 10  cyan
+            # 11  lightcyan
+            # 12  lightblue
+            # 13  pink
+            # 14  grey
+            # 15  lightgrey
+            # NOTE: Irssi can not display all this colors because it run in terminal which have limited number of colors (8, if I remember correctly), but other users (which use X clients, not irssi or wechat :) will see it properly
+            my $format = "[\002Kernel:\002 $kernelVersion] [\002Uptime:\002 $uptime] [\002CPU:\002 $CPUModel $CPUFreq] [\002Load average:\002 $loadAvg1 $loadAvg5 $loadAvg10] [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached cached)] [\002Swap:\002 $swapFree/$swapTotal free ($swapCached cached)] [\002Disks:\002 $disksFree/$disksTotal free] [\002Network:\002 $netReceived received, $netTransmitted transmitted] [\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
+            # Print message to current channel or query (if it exist)
+            $witem->command("MSG " . $witem->{name} . " $format");
+        }
     }
 }
 
