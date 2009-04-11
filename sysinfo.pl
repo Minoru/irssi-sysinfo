@@ -13,16 +13,19 @@
 #       - cache: as far as you can't change kernel or so on the fly, asking for its version is needless, so we can ask once and memorize answer for this session
 
 # CHANGELOG
-# 0.3   
-#       - frequency showing in GHz instead of MHz if it's more than 1000 MHz
-#       - RAM and swap sizes in KB, MB or GB depending on its value (MB if equal or more than 1 MB, GB if eq or more than 1 GB)
+# 0.3.4
+#       - /sysinfo help added
+#       - CHANGELOG sorted in reversed versions order
+# 0.3.3
+#       - network stats added
+# 0.3.2
+#       - disks usage info avaliable now
 # 0.3.1
 #       - load averages info added
 #         You also can use $processesRunning and $processesTotal variables
-# 0.3.2
-#       - disks usage info avaliable now
-# 0.3.3
-#       - network stats added
+# 0.3   
+#       - frequency showing in GHz instead of MHz if it's more than 1000 MHz
+#       - RAM and swap sizes in KB, MB or GB depending on its value (MB if equal or more than 1 MB, GB if eq or more than 1 GB)
 
 use strict;
 use Irssi;
@@ -40,7 +43,10 @@ $VERSION="0.3.4";
 
 my $help = <<EOF;
 
-Usage:
+  SysInfo Script by Minoru (eual.jp\@gmail.com)
+================================================================
+
+\002USAGE:\002
 /sysinfo [help]
 
 /sysinfo         Prints information about your system to current channel or query.
