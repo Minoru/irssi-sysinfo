@@ -9,7 +9,6 @@
 
 
 # TODO: Add:
-#       - disks usage
 #       - network stats
 #       - graphs for RAM and swap usage (something like colored [||||||||||]). It may be called $RAMGraph and $SwapGraph
 #       - cache: as far as you can't change kernel or so on the fly, asking for its version is needless, so we can ask once and memorize answer for this session
@@ -21,13 +20,15 @@
 # 0.3.1
 #       - load averages info added
 #         You also can use $processesRunning and $processesTotal variables
+# 0.3.2
+#       - disks usage info avaliable now
 
 use strict;
 use Irssi;
 
 use vars qw{$VERSION %IRSSI};
 
-$VERSION="0.3.1";
+$VERSION="0.3.2";
 %IRSSI = (
         name => 'SysInfo',
         authors => 'Minoru',
@@ -45,9 +46,10 @@ sub sysinfo {
         my $kernelVersion = &getKernelVersion;
         my $uptime = &getUptime;
         my ($CPUModel,$CPUFreq,$bogomips) = &getCPUInfo;
-        my ($RAMTotal,$RAMFree,$RAMCached,$SwapTotal,$SwapFree,$SwapCached) = &getMemInfo;
+        my ($RAMTotal,$RAMFree,$RAMCached,$swapTotal,$swapFree,$swapCached) = &getMemInfo;
         my ($audioDev,$videoDev) = &getPCIDevsInfo;
         my ($loadAvg1,$loadAvg5,$loadAvg10,$processesRunnning,$processesTotal) = &getLoadAvg;
+        my ($disksTotal,$disksUsed,$disksFree) = &getDisksInfo;
     
         # Set format of message. You may use any variables initialized above and codes listed below
         # \002 mean bold (Usage: \002Here is bold text\002)
@@ -71,7 +73,7 @@ sub sysinfo {
         # 14  grey
         # 15  lightgrey
         # NOTE: Irssi can not display all this colors because it run in terminal which have limited number of colors (8, if I remember correctly), but other users (which use X clients, not irssi or wechat :) will see it properly
-        my $format = "[\002Kernel:\002 $kernelVersion] [\002Uptime:\002 $uptime] [\002CPU:\002 $CPUModel $CPUFreq] [\002Load average:\002 $loadAvg1 $loadAvg5 $loadAvg10] [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached cached)] [\002Swap:\002 $SwapFree/$SwapTotal free ($SwapCached cached)] [\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
+        my $format = "[\002Kernel:\002 $kernelVersion] [\002Uptime:\002 $uptime] [\002CPU:\002 $CPUModel $CPUFreq] [\002Load average:\002 $loadAvg1 $loadAvg5 $loadAvg10] [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached cached)] [\002Swap:\002 $swapFree/$swapTotal free ($swapCached cached)] [\002Disks:\002 $disksFree/$disksTotal free]  [\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
         # Print message to current channel or query (if it exist)
         $witem->command("MSG " . $witem->{name} . " $format");
     }
@@ -231,6 +233,32 @@ sub getLoadAvg {
     close(LOADAVG) || die "Can't close /proc/loadavg: $!";
     ($processesRunning,$processesTotal) = split "/", $processesInfo;
     return ($loadAvg1,$loadAvg5,$loadAvg10,$processesRunning,$processesTotal);
+}
+
+sub getDisksInfo {
+    my ($disksTotal, $disksUsed, $disksFree) = (0,0,0);
+    # Run df and read output
+    open(DF,"df|") or die "Can't run df: $!";
+    my $line;
+    # Skip first line - it's header, we don't need it
+    $line = <DF>;
+    while(defined($line = <DF>)) {
+        chomp $line;
+        if($line =~ m#^/dev/#) {
+            # Process only those lines which starts with /dev/
+            $line =~ s/\s+/ /g;
+            my ($name,$size,$used,$free,$percent,$mount) = split " ", $line;
+            $disksTotal += $size;
+            $disksUsed += $used;
+            $disksFree += $free;
+        }
+    }
+    close(DF) or die "Can't finish reading df's output: $!";
+    # Now we have sizes of total, used and free space in Kbytes. Let's convert it to normal format via kbToOther
+    $disksTotal = &kbToOther($disksTotal);
+    $disksFree = &kbToOther($disksFree);
+    $disksUsed = &kbToOther($disksUsed);
+    return ($disksTotal, $disksUsed, $disksFree);
 }
 
 Irssi::command_bind sysinfo => \&sysinfo;
