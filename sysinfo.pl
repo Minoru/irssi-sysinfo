@@ -12,10 +12,9 @@
 #       - graphs for RAM and swap usage (something like colored [||||||||||]). It may be called $RAMGraph and $SwapGraph
 #       - cache: as far as you can't change kernel or so on the fly, asking for its version is needless, so we can ask once and memorize answer for this session
 
-# KNOWN BUGS:
-#       - if message is too long, irssi wrap it (R6Ale)
-
 # CHANGELOG
+# 0.4
+#       - message now don't wrap when it's too long — it just cut and send part-by-part
 # 0.3.4
 #       - /sysinfo help added
 #       - CHANGELOG sorted in reversed versions order
@@ -35,7 +34,7 @@ use Irssi;
 
 use vars qw{$VERSION %IRSSI %SYSINFO};
 
-$VERSION="0.3.4";
+$VERSION="0.4";
 %IRSSI = (
         name => 'SysInfo',
         authors => 'Minoru',
@@ -98,7 +97,26 @@ sub sysinfo {
             # NOTE: Irssi can not display all this colors because it run in terminal which have limited number of colors (8, if I remember correctly), but other users (which use X clients, not irssi or wechat :) will see it properly
             my $format = "[\002Kernel:\002 $kernelVersion] [\002Uptime:\002 $uptime] [\002CPU:\002 $CPUModel $CPUFreq] [\002Load average:\002 $loadAvg1 $loadAvg5 $loadAvg10] [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached cached)] [\002Swap:\002 $swapFree/$swapTotal free ($swapCached cached)] [\002Disks:\002 $disksFree/$disksTotal free] [\002Network:\002 $netReceived received, $netTransmitted transmitted] [\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
             # Print message to current channel or query (if it exist)
-            $witem->command("MSG " . $witem->{name} . " $format");
+            #$witem->command("MSG " . $witem->{name} . " $format");
+            # Following code send message part-by-part if ir may be wrapped by server
+            my $header = $server->{userhost};
+            $header =~ s/^~//;
+            $header = ":" . $server->{nick} . "!" . $header . " PRIVMSG " . $witem->{name} . " :";
+            
+            my $canBeSent = 512 - length($header);
+            if (length($format) <= $canBeSent) {
+                # If message can be sent without being wrapped — just send it!
+                $witem->command("MSG " . $witem->{name} . " $format");
+            } else {
+                my $msg = $format;
+                my $i = 0;
+                while (length($msg) > 0) {
+                    my $tmp = substr $msg, 0, $canBeSent;
+                    $witem->command("MSG " . $witem->{name} . " $tmp");
+                    $msg =~ s/.{0,$canBeSent}//;
+                    $i++; if ($i > 3) { last };
+                }
+            }
         }
     }
 }
