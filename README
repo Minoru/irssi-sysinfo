@@ -1,0 +1,25 @@
+   irssi sysinfo script
+
+   Written by Alexandr Batischev aka Minoru <eual.jp@gmail.com>
+   Licensed under GNU GPL v3 (see COPYING file for details)
+
+This script displays information about your computer at the current channel or
+query window. Actually it can display:
+- kernel version
+- uptime
+- CPU: model, frequency, bogomips
+- RAM: capacity, amount of free and cached memory
+- swap: capacity, amount of free and cached space
+- names of audio and video devices
+- load averages in last minute, 5 minutes and 10 minutes
+- number of processes running and total
+- disks: total capacity and amount of free space
+- network: amount of received and trancmitted traffic
+
+Output of script can be colorised, you can use bold font and underlying.
+
+Script have built-in anti-wrapper which prevents messages from wrapping (there
+are limitations for message's length).
+
+Feel free to mail me your bug reports!
+
