@@ -145,7 +145,7 @@ sub getKernelVersion {
 }
 
 sub getUptime {
-    # Return uptime
+    # Returns uptime
 
     open(UPTIME,"/proc/uptime") || die "Can't open /proc/uptime: $!";
     my ($uptime,$idle) = split "\s", <UPTIME>;
@@ -175,6 +175,7 @@ sub getUptime {
     } else {
         $msg .= "$minutes";
     };
+    $msg .= ":$seconds";
 
     return $msg;
 }
