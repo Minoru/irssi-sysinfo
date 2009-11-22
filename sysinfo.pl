@@ -99,14 +99,18 @@ sub sysinfo {
             #  correctly), but other users (which use X clients, not irssi or
             #  wechat :) will see it properly
             my $format = "[\002Kernel:\002 $kernelVersion]";
-            $format = $format . "[\002Uptime:\002 $uptime]";
-            $format = $format . "[\002CPU:\002 $CPUModel $CPUFreq]";
-            $format = $format . "[\002Load average:\002 $loadAvg1 $loadAvg5 $loadAvg10]";
-            $format = $format . "[\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached cached)]";
-            $format = $format . "[\002Swap:\002 $swapFree/$swapTotal free ($swapCached cached)]";
-            $format = $format . "[\002Disks:\002 $disksFree/$disksTotal free]";
-            $format = $format . "[\002Network:\002 $netReceived received, $netTransmitted transmitted]";
-            $format = $format . "[\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
+            $format .= " [\002Uptime:\002 $uptime]";
+            $format .= " [\002CPU:\002 $CPUModel $CPUFreq]";
+            $format .= " [\002Load average:\002 $loadAvg1 $loadAvg5" .
+                                                                  "$loadAvg10]";
+            $format .= " [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached" .
+                                                                     "cached)]";
+            $format .= " [\002Swap:\002 $swapFree/$swapTotal free ($swapCached"
+                                                                   . "cached)]";
+            $format .= " [\002Disks:\002 $disksFree/$disksTotal free]";
+            $format .= " [\002Network:\002 $netReceived received," .
+                                                 "$netTransmitted transmitted]";
+            $format .= " [\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
             # Print message to current channel or query (if it exist)
             #$witem->command("MSG " . $witem->{name} . " $format");
             # Following code send message part-by-part if ir may be wrapped by
