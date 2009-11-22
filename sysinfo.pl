@@ -29,7 +29,7 @@ use vars qw{$VERSION %IRSSI %SYSINFO};
 $VERSION="0.4";
 %IRSSI = (
         name => 'SysInfo',
-        authors => 'Minoru',
+        authors => 'Alexandr Batischev aka Minoru',
         contact => 'eual.jp@gmail.com',
         license => 'GPLv3',
         description => 'Prints info about your system',
