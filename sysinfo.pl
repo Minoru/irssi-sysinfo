@@ -62,8 +62,8 @@ sub sysinfo {
             my $kernelVersion = &getKernelVersion;
             my $uptime = &getUptime;
             my ($CPUModel,$CPUFreq,$bogomips) = &getCPUInfo;
-            my ($RAMTotal,$RAMFree,$RAMCached,$swapTotal,$swapFree,
-                                                     $swapCached) = &getMemInfo;
+            my ($RAMTotal,$RAMFree,$RAMUsed,$RAMCached,
+                      $swapTotal,$swapFree,$swapUsed,$swapCached) = &getMemInfo;
             my ($audioDev,$videoDev) = &getPCIDevsInfo;
             my ($loadAvg1,$loadAvg5,$loadAvg10,$processesRunnning,
                                                  $processesTotal) = &getLoadAvg;
@@ -103,11 +103,9 @@ sub sysinfo {
             $format .= " [\002CPU:\002 $CPUModel $CPUFreq]";
             $format .= " [\002Load average:\002 $loadAvg1 $loadAvg5 " .
                                                                   "$loadAvg10]";
-            $format .= " [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached " .
-                                                                     "cached)]";
-            $format .= " [\002Swap:\002 $swapFree/$swapTotal free ($swapCached"
-                                                                  . " cached)]";
-            $format .= " [\002Disks:\002 $disksFree/$disksTotal free]";
+            $format .= " [\002RAM:\002 $RAMUsed of $RAMTotal used]";
+            $format .= " [\002Swap:\002 $swapUsed of $swapTotal used]";
+            $format .= " [\002Disks:\002 $disksFree of $disksTotal free]";
             $format .= " [\002Network:\002 $netReceived received, " .
                                                  "$netTransmitted transmitted]";
             $format .= " [\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
@@ -266,39 +264,47 @@ sub kbToOther {
 
 sub getMemInfo {
     # Return info about RAM and swap
-    my ($crap,$line,$RAMTotal,$RAMFree,$RAMCached,$SwapTotal,$SwapFree,
-                                                                   $SwapCached);
+    my ($crap,$line,$RAMTotal,$RAMFree,$RAMUsed,$RAMCached,
+                                    $SwapTotal,$SwapFree,$SwapUsed,$SwapCached);
     open(MEM,"/proc/meminfo") || die "Can't open /proc/meminfo: $!";
     while(defined($line = <MEM>)) {
         chomp $line;
         $line =~ s/\s+/ /g;
         if ($line =~ /^MemTotal/) {
             ($crap,$RAMTotal) = split ": ", $line;
-            $RAMTotal = &kbToOther($RAMTotal);
         }
         elsif ($line =~ /^MemFree/) {
             ($crap,$RAMFree) = split ": ", $line;
-            $RAMFree = &kbToOther($RAMFree);
         }
         elsif ($line =~ /^Cached/) {
             ($crap,$RAMCached) = split ": ", $line;
-            $RAMCached = &kbToOther($RAMCached);
         }
         elsif ($line =~ /^SwapTotal/) {
             ($crap,$SwapTotal) = split ": ", $line;
-            $SwapTotal = &kbToOther($SwapTotal);
         }
         elsif ($line =~ /^SwapFree/) {
             ($crap,$SwapFree) = split ": ", $line;
-            $SwapFree = &kbToOther($SwapFree);
         }
         elsif ($line =~ /^SwapCached/) {
             ($crap,$SwapCached) = split ": ", $line;
-            $SwapCached = &kbToOther($SwapCached);
         }
     }
     close(MEM) || die "Can't close /proc/meminfo: $!";
-    return ($RAMTotal,$RAMFree,$RAMCached,$SwapTotal,$SwapFree,$SwapCached);
+
+    $RAMUsed  = $RAMTotal  - $RAMFree  - $RAMCached;
+    $SwapUsed = $SwapTotal - $SwapFree - $SwapCached;
+
+    $RAMTotal   = &kbToOther($RAMTotal);
+    $RAMFree    = &kbToOther($RAMFree);
+    $RAMUsed    = &kbToOther($RAMUsed);
+    $RAMCached  = &kbToOther($RAMCached);
+    $SwapTotal  = &kbToOther($SwapTotal);
+    $SwapFree   = &kbToOther($SwapFree);
+    $SwapUsed   = &kbToOther($SwapUsed);
+    $SwapCached = &kbToOther($SwapCached);
+
+    return ($RAMTotal,$RAMFree,$RAMUsed,$RAMCached,
+                                    $SwapTotal,$SwapFree,$SwapUsed,$SwapCached);
 }
 
 sub getPCIDevsInfo {
