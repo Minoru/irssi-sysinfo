@@ -1,0 +1,16 @@
+0.4
+      - message now don't wrap when it's too long - it just cut and send part-by-part
+0.3.4
+      - /sysinfo help added
+      - CHANGELOG sorted in reversed versions order
+0.3.3
+      - network stats added
+0.3.2
+      - disks usage info avaliable now
+0.3.1
+      - load averages info added
+        You also can use $processesRunning and $processesTotal variables
+0.3   
+      - frequency showing in GHz instead of MHz if it's more than 1000 MHz
+      - RAM and swap sizes in KB, MB or GB depending on its value (MB if equal or more than 1 MB, GB if eq or more than 1 GB)
+

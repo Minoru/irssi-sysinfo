@@ -28,11 +28,6 @@
 # All subroutines named in "getWhatYouWantToGet" style and placed in the end of script.
 # Script have one variable called $format where format of message stored (hard to guess, sure? :). If you want to change format — please change only this variable.
 
-
-# TODO: Add:
-#       - graphs for RAM and swap usage (something like colored [||||||||||]). It may be called $RAMGraph and $SwapGraph
-#       - cache: as far as you can't change kernel or so on the fly, asking for its version is needless, so we can ask once and memorize answer for this session
-
 # CHANGELOG
 # 0.4
 #       - message now don't wrap when it's too long — it just cut and send part-by-part
