@@ -43,32 +43,40 @@ my $help = <<EOF;
 \002USAGE:\002
 /sysinfo [help]
 
-/sysinfo         Prints information about your system to current channel or query.
-/sysinfo help    Prints this text
+/sysinfo       Prints information about your system to current channel or query.
+/sysinfo help  Prints this text
 EOF
 
 sub sysinfo {
     my ($data,$server,$witem) = @_;
 
-    # If window exist and it's channel or query (no sense to print info to any other window)
+    # If window exist and it's channel or query (no sense to print info to any
+    #  other window)
     if ($data eq "help") {
         print $help;
     } else {
-        if ($witem && ($witem->{type} eq "CHANNEL" || $witem->{type} eq "QUERY")) {
-            # Initialize varibles where real values of kernel version, architecture, machine uptime etc. stored
+        if ($witem && ($witem->{type} eq "CHANNEL"
+                                                || $witem->{type} eq "QUERY")) {
+            # Initialize varibles where real values of kernel version,
+            #  architecture, machine uptime etc. stored
             my $kernelVersion = &getKernelVersion;
             my $uptime = &getUptime;
             my ($CPUModel,$CPUFreq,$bogomips) = &getCPUInfo;
-            my ($RAMTotal,$RAMFree,$RAMCached,$swapTotal,$swapFree,$swapCached) = &getMemInfo;
+            my ($RAMTotal,$RAMFree,$RAMCached,$swapTotal,$swapFree,
+                                                     $swapCached) = &getMemInfo;
             my ($audioDev,$videoDev) = &getPCIDevsInfo;
-            my ($loadAvg1,$loadAvg5,$loadAvg10,$processesRunnning,$processesTotal) = &getLoadAvg;
+            my ($loadAvg1,$loadAvg5,$loadAvg10,$processesRunnning,
+                                                 $processesTotal) = &getLoadAvg;
             my ($disksTotal,$disksUsed,$disksFree) = &getDisksInfo;
             my ($netReceived, $netTransmitted) = &getNetInfo;
         
-            # Set format of message. You may use any variables initialized above and codes listed below
+            # Set format of message. You may use any variables initialized above
+            # and codes listed below
             # \002 mean bold (Usage: \002Here is bold text\002)
             # \037 mean underlined text (Usage: \037Here is underlined text\037)
-            # \003fg[,bg] — set foreground and background colors (Usage: \0033Here is green text\003  or \0038,1Here is yellow text at black background\003)
+            # \003fg[,bg] — set foreground and background colors
+            #  (Usage: \0033Here is green text\003  or \0038,1Here is yellow
+            #  text at black background\003)
             # Table of mIRC colors (it's standard de-facto in IRC world):
             #  0  white
             #  1  black
@@ -86,14 +94,27 @@ sub sysinfo {
             # 13  pink
             # 14  grey
             # 15  lightgrey
-            # NOTE: Irssi can not display all this colors because it run in terminal which have limited number of colors (8, if I remember correctly), but other users (which use X clients, not irssi or wechat :) will see it properly
-            my $format = "[\002Kernel:\002 $kernelVersion] [\002Uptime:\002 $uptime] [\002CPU:\002 $CPUModel $CPUFreq] [\002Load average:\002 $loadAvg1 $loadAvg5 $loadAvg10] [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached cached)] [\002Swap:\002 $swapFree/$swapTotal free ($swapCached cached)] [\002Disks:\002 $disksFree/$disksTotal free] [\002Network:\002 $netReceived received, $netTransmitted transmitted] [\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
+            # NOTE: Irssi can not display all this colors because it run in
+            #  terminal which have limited number of colors (8, if I remember
+            #  correctly), but other users (which use X clients, not irssi or
+            #  wechat :) will see it properly
+            my $format = "[\002Kernel:\002 $kernelVersion]";
+            $format = $format . "[\002Uptime:\002 $uptime]";
+            $format = $format . "[\002CPU:\002 $CPUModel $CPUFreq]";
+            $format = $format . "[\002Load average:\002 $loadAvg1 $loadAvg5 $loadAvg10]";
+            $format = $format . "[\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached cached)]";
+            $format = $format . "[\002Swap:\002 $swapFree/$swapTotal free ($swapCached cached)]";
+            $format = $format . "[\002Disks:\002 $disksFree/$disksTotal free]";
+            $format = $format . "[\002Network:\002 $netReceived received, $netTransmitted transmitted]";
+            $format = $format . "[\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
             # Print message to current channel or query (if it exist)
             #$witem->command("MSG " . $witem->{name} . " $format");
-            # Following code send message part-by-part if ir may be wrapped by server
+            # Following code send message part-by-part if ir may be wrapped by
+            #  server
             my $header = $server->{userhost};
             $header =~ s/^~//;
-            $header = ":" . $server->{nick} . "!" . $header . " PRIVMSG " . $witem->{name} . " :";
+            $header = ":" . $server->{nick} . "!" . $header . " PRIVMSG "
+                                                        . $witem->{name} . " :";
             
             my $canBeSent = 512 - length($header);
             if (length($format) <= $canBeSent) {
@@ -115,7 +136,8 @@ sub sysinfo {
 
 sub getKernelVersion {
     # Return kernel version
-    open(OSR,"/proc/sys/kernel/osrelease") || die "Can't open /proc/sys/kernel/osrelease: $!";
+    open(OSR,"/proc/sys/kernel/osrelease")
+                             || die "Can't open /proc/sys/kernel/osrelease: $!";
     my $osrelease = <OSR>;
     close(OSR) || die "Can't close /proc/sys/kernel/osrelease: $!";
     chomp($osrelease);
@@ -168,8 +190,11 @@ sub getCPUInfo {
             ($crap,$model) = split " : ", $line;
         }
         elsif ($line =~ /^bogomips/) {
-            # In fact, BogoMIPS isn't that value which can be used for comparing computers, so I get it (may be somebody will be interested to show it to others), but don't show in message by default
-            # Change $format variable in sysinfo subroutine if you want to show bogomips value to others
+            # In fact, BogoMIPS isn't that value which can be used for comparing
+            #  computers, so I get it (may be somebody will be interested to
+            #  show it to others), but don't show in message by default
+            # Change $format variable in sysinfo subroutine if you want to show
+            #  bogomips value to others
             ($crap,$bogomips) = split " : ", $line;
         }
         elsif ($line =~ /MHz/) {
@@ -202,7 +227,8 @@ sub kbToOther {
         $size = $size / 1024;
         $numeric = "MB";
     }
-    # It may be writen as "use POSIX; ... $size = POSIX::floor($size);" too, but...
+    # It may be writen as "use POSIX; ... $size = POSIX::floor($size);" too,
+    #  but...
     # ... but I didn't use POSIX anywhere here so why should I use it here? :)
     $size = sprintf("%.0f", $size);
     return $size . " " . $numeric;
@@ -210,7 +236,8 @@ sub kbToOther {
 
 sub getMemInfo {
     # Return info about RAM and swap
-    my ($crap,$line,$RAMTotal,$RAMFree,$RAMCached,$SwapTotal,$SwapFree,$SwapCached);
+    my ($crap,$line,$RAMTotal,$RAMFree,$RAMCached,$SwapTotal,$SwapFree,
+                                                                   $SwapCached);
     open(MEM,"/proc/meminfo") || die "Can't open /proc/meminfo: $!";
     while(defined($line = <MEM>)) {
         chomp $line;
@@ -261,9 +288,11 @@ sub getPCIDevsInfo {
 }
 
 sub getLoadAvg {
-    my ($crap,$loadAvg1,$loadAvg5,$loadAvg10,$processesRunning,$processesTotal,$processesInfo);
+    my ($crap,$loadAvg1,$loadAvg5,$loadAvg10,$processesRunning,$processesTotal,
+                                                                $processesInfo);
     open(LOADAVG,"/proc/loadavg") || die "Can't open /proc/loadavg: $!";
-    ($loadAvg1,$loadAvg5,$loadAvg10,$processesInfo,$crap) = split " ", <LOADAVG>;
+    ($loadAvg1,$loadAvg5,$loadAvg10,$processesInfo,$crap) 
+                                                         = split " ", <LOADAVG>;
     close(LOADAVG) || die "Can't close /proc/loadavg: $!";
     ($processesRunning,$processesTotal) = split "/", $processesInfo;
     return ($loadAvg1,$loadAvg5,$loadAvg10,$processesRunning,$processesTotal);
@@ -288,7 +317,8 @@ sub getDisksInfo {
         }
     }
     close(DF) or die "Can't finish reading df's output: $!";
-    # Now we have sizes of total, used and free space in Kbytes. Let's convert it to normal format via kbToOther
+    # Now we have sizes of total, used and free space in Kbytes. Let's convert
+    #  it to normal format via kbToOther
     $disksTotal = &kbToOther($disksTotal);
     $disksFree = &kbToOther($disksFree);
     $disksUsed = &kbToOther($disksUsed);
@@ -309,10 +339,12 @@ sub getNetInfo {
             # Remove name of interface
             $line =~ s/.*://g;
             $line =~ s/\s+/ /g;
-            # We need to remove first space symbols again because line may look like "eth1:   3545"
+            # We need to remove first space symbols again because line may look
+            #  like "eth1:   3545"
             $line =~ s/^\s*//g;
             # Read data
-            ($received,$crap,$crap,$crap,$crap,$crap,$crap,$crap,$transmitted,$crap,$crap,$crap,$crap,$crap,$crap,$crap) = split " ", $line;
+            ($received,$crap,$crap,$crap,$crap,$crap,$crap,$crap,$transmitted,
+                  $crap,$crap,$crap,$crap,$crap,$crap,$crap) = split " ", $line;
         }
     }
     close(NETDEV) or die "Can't close /proc/net/dev: $!";
