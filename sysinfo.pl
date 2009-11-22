@@ -169,9 +169,34 @@ sub getUptime {
     my $years = $uptime;
 
     my $msg = ""; # this is what we will return
-    $msg .= "$years years, " if $years >= 1;
-    $msg .= "$months months, " if $months != 0;
-    $msg .= "$days days, " if $days != 0;
+    
+    if ($years >= 1) {
+        if ($years == 1) {
+            $msg .= "1 year";
+        } else {
+            $msg .= "$years years";
+        }
+        $msg .= ", "
+    }
+    
+    if ($months != 0) {
+        if ($months == 1) {
+            $msg .= "1 month"
+        } else {
+            $msg .= "$months months"
+        }
+        $msg .= ", "
+    }
+    
+    if ($days != 0) {
+        if ($days == 1) {
+            $msg .= "1 day"
+        } else {
+            $msg .= "$days days"
+        }
+        $msg .= ", "
+    }
+    
     $msg .= "$hours:";
     if ($minutes < 10)
     {
