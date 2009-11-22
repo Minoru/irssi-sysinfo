@@ -21,13 +21,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# To those who will use, support or modify this crap :)
-#
-# This script have (at least, must have :) modal structure.
-# It have one bind (/sysinfo) and one main subroutine (sysinfo). Sysinfo call all other subroutines before printing message.
-# All subroutines named in "getWhatYouWantToGet" style and placed in the end of script.
-# Script have one variable called $format where format of message stored (hard to guess, sure? :). If you want to change format — please change only this variable.
-
 use strict;
 use Irssi;
 
