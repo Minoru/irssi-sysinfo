@@ -101,14 +101,14 @@ sub sysinfo {
             my $format = "[\002Kernel:\002 $kernelVersion]";
             $format .= " [\002Uptime:\002 $uptime]";
             $format .= " [\002CPU:\002 $CPUModel $CPUFreq]";
-            $format .= " [\002Load average:\002 $loadAvg1 $loadAvg5" .
+            $format .= " [\002Load average:\002 $loadAvg1 $loadAvg5 " .
                                                                   "$loadAvg10]";
-            $format .= " [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached" .
+            $format .= " [\002RAM:\002 $RAMFree/$RAMTotal free ($RAMCached " .
                                                                      "cached)]";
             $format .= " [\002Swap:\002 $swapFree/$swapTotal free ($swapCached"
-                                                                   . "cached)]";
+                                                                  . " cached)]";
             $format .= " [\002Disks:\002 $disksFree/$disksTotal free]";
-            $format .= " [\002Network:\002 $netReceived received," .
+            $format .= " [\002Network:\002 $netReceived received, " .
                                                  "$netTransmitted transmitted]";
             $format .= " [\002Audio:\002 $audioDev] [\002Video:\002 $videoDev]";
             # Print message to current channel or query (if it exist)
