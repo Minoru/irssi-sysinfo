@@ -1,3 +1,6 @@
+0.4.1 (17 Jul 2010)
+      - little performance optimization: kernel version and audio/video devices description are now getting cached
+
 0.4
       - message now don't wrap when it's too long - it just cut and send part-by-part
 0.3.4

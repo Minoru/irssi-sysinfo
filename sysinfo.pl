@@ -2,23 +2,25 @@
 
 #
 #  irssi sysinfo script
-#  Written by Alexandr Batischev aka Minoru <eual.jp@gmail.com>
-#  Copyright 2009 Alexandr Batischev
 #
 
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Copyright 2009, 2010 Alexandr Batischev <eual.jp@gmail.com>
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 use strict;
@@ -26,7 +28,7 @@ use Irssi;
 
 use vars qw{$VERSION %IRSSI %SYSINFO};
 
-$VERSION="0.4";
+$VERSION="0.4.1";
 %IRSSI = (
         name => 'SysInfo',
         authors => 'Alexandr Batischev aka Minoru',
@@ -47,6 +49,18 @@ my $help = <<EOF;
 /sysinfo help  Prints this text
 EOF
 
+# This variables are in global scope for a performance optimization
+# They will be initialized at first run of sysinfo subroutine
+# Values represented by this variables can not be changed during runtime for
+# hardware reasons so there are no need to re-initialize them on each run of
+# 'sysinfo' subroutine
+# Parts of CPU and RAM info can't be optimized that way due to script
+# architecture limitations
+my $kernelVersion = "";
+my $audioDev      = "";
+my $videoDev      = "";
+ 
+
 sub sysinfo {
     my ($data,$server,$witem) = @_;
 
@@ -57,14 +71,17 @@ sub sysinfo {
     } else {
         if ($witem && ($witem->{type} eq "CHANNEL"
                                                 || $witem->{type} eq "QUERY")) {
-            # Initialize varibles where real values of kernel version,
-            #  architecture, machine uptime etc. stored
-            my $kernelVersion = &getKernelVersion;
+
+            if ($kernelVersion == "") {
+                $kernelVersion = &getKernelVersion;
+            }
             my $uptime = &getUptime;
             my ($CPUModel,$CPUFreq,$bogomips) = &getCPUInfo;
             my ($RAMTotal,$RAMFree,$RAMUsed,$RAMCached,
                       $swapTotal,$swapFree,$swapUsed,$swapCached) = &getMemInfo;
-            my ($audioDev,$videoDev) = &getPCIDevsInfo;
+            if ($audioDev eq "" && $videoDev eq "") {
+                ($audioDev, $videoDev) = &getPCIDevsInfo;
+            }
             my ($loadAvg1,$loadAvg5,$loadAvg10,$processesRunnning,
                                                  $processesTotal) = &getLoadAvg;
             my ($disksTotal,$disksUsed,$disksFree) = &getDisksInfo;
