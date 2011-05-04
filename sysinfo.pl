@@ -219,7 +219,12 @@ sub getUptime {
     } else {
         $msg .= "$minutes";
     };
-    $msg .= ":$seconds";
+    if ($seconds < 10)
+    {
+        $msg .= ":0$seconds";
+    } else {
+        $msg .= "$seconds";
+    }
 
     return $msg;
 }

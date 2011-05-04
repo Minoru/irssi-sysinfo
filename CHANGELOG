@@ -1,3 +1,6 @@
+0.4.2 (4 May 2011)
+      - bugfix: seconds wasn't displayed right in uptime (sometimes there was just one digit in there)
+
 0.4.1 (17 Jul 2010)
       - little performance optimization: kernel version and audio/video devices description are now getting cached
 
