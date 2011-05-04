@@ -223,7 +223,7 @@ sub getUptime {
     {
         $msg .= ":0$seconds";
     } else {
-        $msg .= "$seconds";
+        $msg .= ":$seconds";
     }
 
     return $msg;
