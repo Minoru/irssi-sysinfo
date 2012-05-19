@@ -5,7 +5,7 @@
 #
 
 #
-#   Copyright 2009, 2010 Alexandr Batischev <eual.jp@gmail.com>
+#   Copyright 2009, 2010 Alexander Batischev <eual.jp@gmail.com>
 #
 
 #
@@ -31,10 +31,10 @@ use vars qw{$VERSION %IRSSI %SYSINFO};
 $VERSION="0.4.1";
 %IRSSI = (
         name => 'SysInfo',
-        authors => 'Alexandr Batischev aka Minoru',
+        authors => 'Alexander Batischev aka Minoru',
         contact => 'eual.jp@gmail.com',
         license => 'GPLv3',
-        description => 'Prints info about your system',
+        description => 'Prints info about your Linux PC',
         );
 
 my $help = <<EOF;

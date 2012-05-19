@@ -1,10 +1,10 @@
    irssi sysinfo script
 
-   Written by Alexandr Batischev aka Minoru <eual.jp@gmail.com>
+   Written by Alexander Batischev aka Minoru <eual.jp@gmail.com>
    Licensed under GNU GPL v3 (see COPYING file for details)
 
-This script displays information about your computer at the current channel or
-query window. Actually it can display:
+This script displays information about your computer running Linux at the
+current channel or query window. It can display:
 - kernel version
 - uptime
 - CPU: model, frequency, bogomips
